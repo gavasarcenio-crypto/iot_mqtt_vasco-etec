@@ -202,18 +202,3 @@ Fica esperto nesses pontos:
 ❌ não recebe dados → tópico errado
 
 ❌ app conecta mas não responde → ESP32 não está publicando
-
-
-
----
-
-💬 Se quiser ajuda de verdade mesmo:
-
-Posso agora:
-
-montar o **App.js completo igual do PDF**
-
-ou revisar o seu código se não estiver funcionando
-
-
-Só manda 👍
