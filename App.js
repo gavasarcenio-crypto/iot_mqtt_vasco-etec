@@ -8,7 +8,7 @@ import MQTTService from './src/services/mqttService';
 
 const config = {
   host: '535db41766ec4956b6c9f3f1389296ae.s1.eu.hivemq.cloud',
-  port: 8883,
+  port: 8884,
   path: '/mqtt',
   user: 'vasco-etec',
   pass: 'Trabalhomenbosta123123',
@@ -26,8 +26,8 @@ export default function App() {
   const onConnect = () => {
     setConnected(true);
     setErrorVisible(false);
-    mqtt.subscribe('casa/temperatura');
-    mqtt.subscribe('casa/umidade');
+    mqtt.subscribe('casa/temp');
+    mqtt.subscribe('casa/umid');
   };
 
   const onFailure = () => {
@@ -36,14 +36,14 @@ export default function App() {
   };
 
   const onMessage = (topic, message) => {
-    if (topic === 'casa/temperatura') {
+    if (topic === 'casa/temp') {
       const value = parseFloat(message);
       if (!Number.isNaN(value)) {
         setTemp(value);
       }
     }
 
-    if (topic === 'casa/umidade') {
+    if (topic === 'casa/umid') {
       const value = parseFloat(message);
       if (!Number.isNaN(value)) {
         setHum(value);
