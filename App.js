@@ -1,10 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, useRef } from 'react';
 import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Gauges from './src/components/Gauges';
 import LightControl from './src/components/LightControl';
 import StatusModal from './src/components/StatusModal';
+import HistoryList from './src/components/HistoryList';
 import MQTTService from './src/services/mqttService';
+
+const HISTORY_KEY = 'mqtt_history';
+const MAX_HISTORY = 20;
 
 const config = {
   host: '535db41766ec4956b6c9f3f1389296ae.s1.eu.hivemq.cloud',
@@ -21,7 +26,36 @@ export default function App() {
   const [isLightOn, setIsLightOn] = useState(false);
   const [connected, setConnected] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
+  const [history, setHistory] = useState([]);
   const mqtt = useRef(new MQTTService()).current;
+
+  // Carrega histórico salvo ao abrir o app
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(HISTORY_KEY);
+        if (saved) setHistory(JSON.parse(saved));
+      } catch (e) {
+        console.log('Erro ao carregar histórico:', e);
+      }
+    };
+    loadHistory();
+  }, []);
+
+  const saveToHistory = async (topic, value) => {
+    const newEntry = {
+      id: Date.now().toString(),
+      topic,
+      value,
+      time: new Date().toLocaleTimeString('pt-BR'),
+    };
+
+    setHistory((prev) => {
+      const updated = [...prev, newEntry].slice(-MAX_HISTORY);
+      AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const onConnect = () => {
     setConnected(true);
@@ -40,13 +74,14 @@ export default function App() {
       const value = parseFloat(message);
       if (!Number.isNaN(value)) {
         setTemp(value);
+        saveToHistory('Temperatura', `${value} °C`);
       }
     }
-
     if (topic === 'casa/umid') {
       const value = parseFloat(message);
       if (!Number.isNaN(value)) {
         setHum(value);
+        saveToHistory('Umidade', `${value} %`);
       }
     }
   };
@@ -79,8 +114,8 @@ export default function App() {
         </View>
 
         <LightControl isLightOn={isLightOn} onToggle={toggleLight} />
-
         <Gauges temp={temp} hum={hum} />
+        <HistoryList history={history} />
       </ScrollView>
 
       <StatusModal
@@ -120,18 +155,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  statusLabel: {
-    color: '#AAA',
-    fontSize: 16,
-  },
-  statusValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  online: {
-    color: '#2ECC71',
-  },
-  offline: {
-    color: '#E74C3C',
-  },
+  statusLabel: { color: '#AAA', fontSize: 16 },
+  statusValue: { fontSize: 16, fontWeight: 'bold' },
+  online: { color: '#2ECC71' },
+  offline: { color: '#E74C3C' },
 });
