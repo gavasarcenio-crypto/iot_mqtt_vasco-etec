@@ -1,12 +1,17 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function HistoryList({ history }) {
+export default function HistoryList({ history, onClear }) {
   if (history.length === 0) return null;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Histórico de Leituras</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Histórico de Leituras</Text>
+        <TouchableOpacity onPress={onClear}>
+          <Text style={styles.clearBtn}>Limpar</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={[...history].reverse()}
         keyExtractor={(item) => item.id}
@@ -31,11 +36,20 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 15,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   title: {
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
+  },
+  clearBtn: {
+    color: '#E74C3C',
+    fontSize: 14,
   },
   item: {
     flexDirection: 'row',

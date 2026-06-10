@@ -29,7 +29,6 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const mqtt = useRef(new MQTTService()).current;
 
-  // Carrega histórico salvo ao abrir o app
   useEffect(() => {
     const loadHistory = async () => {
       try {
@@ -49,12 +48,16 @@ export default function App() {
       value,
       time: new Date().toLocaleTimeString('pt-BR'),
     };
-
     setHistory((prev) => {
       const updated = [...prev, newEntry].slice(-MAX_HISTORY);
       AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
       return updated;
     });
+  };
+
+  const clearHistory = async () => {
+    await AsyncStorage.removeItem(HISTORY_KEY);
+    setHistory([]);
   };
 
   const onConnect = () => {
@@ -69,7 +72,8 @@ export default function App() {
     setErrorVisible(true);
   };
 
-  const onMessage = (topic, message) => {
+  const onMessageRef = useRef(null);
+  onMessageRef.current = (topic, message) => {
     if (topic === 'casa/temp') {
       const value = parseFloat(message);
       if (!Number.isNaN(value)) {
@@ -87,7 +91,7 @@ export default function App() {
   };
 
   const connectMqtt = () => {
-    mqtt.connect(config, onMessage, onConnect, onFailure);
+    mqtt.connect(config, (topic, message) => onMessageRef.current(topic, message), onConnect, onFailure);
   };
 
   const toggleLight = () => {
@@ -115,7 +119,7 @@ export default function App() {
 
         <LightControl isLightOn={isLightOn} onToggle={toggleLight} />
         <Gauges temp={temp} hum={hum} />
-        <HistoryList history={history} />
+        <HistoryList history={history} onClear={clearHistory} />
       </ScrollView>
 
       <StatusModal
@@ -128,10 +132,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#121212',
-  },
+  safeArea: { flex: 1, backgroundColor: '#121212' },
   container: {
     flexGrow: 1,
     padding: 20,
@@ -139,12 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  title: {
-    color: '#FFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
+  title: { color: '#FFF', fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
   statusBox: {
     width: '100%',
     padding: 15,
