@@ -36,7 +36,6 @@ MyIoTProject/
 │       ├── LightControl.js      # Controle do LED
 │       └── StatusModal.js       # Modal de erro de conexão
 ├── .env                         # Credenciais reais (NÃO enviar ao GitHub)
-├── .env.example                 # Modelo de variáveis de ambiente
 ├── .gitignore
 └── App.js                       # Tela principal e lógica de estado
 ```
@@ -53,24 +52,19 @@ MyIoTProject/
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
+git clone https://github.com/gavasarcenio-crypto/iot_mqtt_vasco-etec.git
+cd iot_mqtt_vasco-etec
 
 # Instalar dependências
 npm install
 
-# Configurar variáveis de ambiente
-cp .env.example .env
-# Edite o .env com suas credenciais do HiveMQ
-```
-
 ### Configurar o `.env`
 
 ```
-MQTT_HOST=seu_cluster.s1.eu.hivemq.cloud
+MQTT_HOST=535db41766ec4956b6c9f3f1389296ae.s1.eu.hivemq.cloud
 MQTT_PORT=8884
-MQTT_USER=seu_usuario
-MQTT_PASS=sua_senha
+MQTT_USER=vasco-etec
+MQTT_PASS=Trabalhomenbosta123123
 MQTT_PATH=/mqtt
 ```
 
